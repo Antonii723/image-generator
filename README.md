@@ -7,6 +7,7 @@ This system should let users pick one or more models, enter text prompts, and ge
 # Objectives
 
 **1. Create an easy-to-use interface where users can select and run multiple image generation models.**
+
 **2. Integrate at least five different open-source image generation models:** 
 
 * Stable Diffusion (SD)
@@ -16,6 +17,7 @@ This system should let users pick one or more models, enter text prompts, and ge
 * PixArt-Alpha
 
 **3. Make sure the system can handle multiple prompts and generate outputs efficiently.** 
+
 **4. Collect performance metrics for each model, such as the time taken to generate an image and other relevant statistics.** 
 
 # Deliverables
