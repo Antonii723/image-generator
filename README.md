@@ -6,7 +6,7 @@ This system should let users pick one or more models, enter text prompts, and ge
 
 # Objectives
 
-**1. Create an easy-to-use interface where users can select and run multiple image generation models.** 
+**1. Create an easy-to-use interface where users can select and run multiple image generation models.**
 **2. Integrate at least five different open-source image generation models:** 
 
 * Stable Diffusion (SD)
