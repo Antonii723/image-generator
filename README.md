@@ -73,7 +73,12 @@ pip install -r requirement.txt
 
 **4. Run WebApp** 
 ```
-python App.py
+python app.py
+
+(Microsoft Visual C++ Redistributable is not installed, this may lead to the DLL load failure.
+It can be downloaded at https://aka.ms/vs/16/release/vc_redist.x64.exe)
+
+Please run this app on your web browser.
 http://localhost:5000/
 ```
 
