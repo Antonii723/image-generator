@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Image Generator</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <style>
+        body {
+           margin-top: 100px;
+        }
+
+        .generated-image {
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 5px;
+            width: 100%;
+        }
+
+        #result-image, #metrics, #generating_image {
+            display: none;
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="text-center">Image Generator</h1>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="exampleFormControlFile1">Model</label>
+                    <select class="form-control" id="model_type">
+                        {% for model in model_list %}
+                            <option value="{{ model }}">{{ model }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <p id="selected-model"></p>
+
+                <p>Selected Model: {{selected_model}}</p>
+                <hr>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="myDiv">
+                    <p>Enter prompt here to generate the image: </p>
+                    <textarea class="form-control" name="prompt" rows="3" cols="50" id="prompt" style="font-size: 16pt">The parametric hotel lobby is a sleek and modern space with plenty of natural light. The lobby is spacious and open with a variety of seating options. The front desk is a sleek white counter with a parametric design. The walls are a light blue color with parametric patterns. The floor is a light wood color with a parametric design. There are plenty of plants and flowers throughout the space. The overall effect is a calm and relaxing space. occlusion, moody, sunset, concept art, octane rendering, 8k, highly detailed, concept art, highly detailed, beautiful scenery, cinematic, beautiful light, hyperreal, octane render, hdr, long exposure, 8K, realistic, fog, moody, fire and explosions, smoke, 50mm f2.8
+                    </textarea>
+                </div>
+                <br>
+                
+                <div class="myDiv">
+                    <button class="btn btn-primary" id="start-txt2img-btn">Create Image</button>
+                    <button class="btn btn-primary" type="button" disabled="" id="generating_image">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Generating Image...
+                    </button>
+                </div>
+                <br>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="image-wrapper" id="result-image">
+                    <img src="{{url_for('static', filename = 'output.jpg')}}" class="generated-image"/>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div id="metrics">
+                    <p>Time taken: <span id="time_taken"></span> seconds</p>
+                    <h3>System Resource Usage Before Generation:</h3>
+                    <p>CPU Usage: <span id="before_cpu_usage"></span>%</p>
+                    <p>Memory Used: <span id="before_memory_used"></span> MB</p>
+                    <p>Total Memory: <span id="before_memory_total"></span> MB</p>
+                    
+                    <h3>System Resource Usage After Generation:</h3>
+                    <p>CPU Usage: <span id="after_cpu_usage"></span>%</p>
+                    <p>Memory Used: <span id="after_memory_used"></span> MB</p>
+                    <p>Total Memory: <span id="after_memory_total"></span> MB</p>
+                </div>
+                <!-- <ul class="unstyled">
+                    <li>Time taken to generate image: 168s</li>
+                    <li>System resource usage (CPU, GPU, Memory): CPU: xx, GPU: 3%, Memory: 90% </li>
+                    <li>Success rate of image generation: 100%</li>
+                    <li>Number of requests handled per model: 38</li>
+                    <li>Average time per request: 130s</li>
+                    <li>Frequency of model-specific errors: 0</li>
+                    <li>Peak memory usage during image generation: 99%</li>
+                    <li>User satisfaction rating: 5</li>
+                </ul> -->
+            </div>
+        </div>
+    </div>
+
+    <div id="preloader"></div>
+</body>
+
+<script>
+    const socket = io();
+
+    const imgElement = document.getElementById('result-image');
+    const metricElement = document.getElementById('metrics');
+    const btnGeneratingImage = document.getElementById('generating_image');
+    const btnStartGeneratingImage = document.getElementById('start-txt2img-btn');
+
+    document.getElementById('start-txt2img-btn').addEventListener('click', () => {
+        const prompt = document.getElementById('prompt').value;
+        const model = document.getElementById('model_type').value;
+
+        imgElement.style.display = 'none';
+        metricElement.style.display = 'none';
+        btnGeneratingImage.style.display = 'block';
+        btnStartGeneratingImage.style.display = 'none';
+
+        socket.emit('start_txt2img', { prompt, model });
+    });
+
+    socket.on('progress_update', (data) => {
+        console.log(data, 'step');
+        const step = data.step;
+        const progress = (step / 10) * 100;
+        document.getElementById('progress-bar').style.width = progress + '%';
+    });
+
+    socket.on('image_result', (data) => {
+        const image = data.image_data;
+        
+        if (data.before_resources) {
+            const beforeResources = JSON.parse(data.before_resources);
+            
+            const beforeCPUItem = document.getElementById('before_cpu_usage');
+            const beforeMemoryItem = document.getElementById('before_memory_used');
+            const beforeTotalMemoryCPUItem = document.getElementById('before_memory_total');
+
+            beforeCPUItem.innerHTML = beforeResources?.cpu_usage ?? '';
+            beforeMemoryItem.innerHTML = beforeResources?.memory_used ?? '';
+            beforeTotalMemoryCPUItem.innerHTML = beforeResources?.memory_total ?? '';
+        }
+
+        if (data.after_resources) {
+            const afterResources = JSON.parse(data.after_resources);
+            const afterCPUItem = document.getElementById('after_cpu_usage');
+            const afterMemoryItem = document.getElementById('after_memory_used');
+            const afterTotalMemoryCPUItem = document.getElementById('after_memory_total');
+
+            afterCPUItem.innerHTML = afterResources?.cpu_usage ?? '';
+            afterMemoryItem.innerHTML = afterResources?.memory_used ?? '';
+            afterTotalMemoryCPUItem.innerHTML = afterResources?.memory_total ?? '';
+        }
+        
+        if (data.time_taken) {
+            const timeTaken = data?.time_taken ?? 0;
+            const timeItem = document.getElementById('time_taken');
+
+            timeItem.innerHTML = timeTaken;
+        }
+
+        imgElement.style.display = 'block';
+        metricElement.style.display = 'block';
+        btnGeneratingImage.style.display = 'none';
+        btnStartGeneratingImage.style.display = 'block';
+    });
+</script>
+</html>
