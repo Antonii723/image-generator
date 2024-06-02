@@ -70,3 +70,10 @@ python.exe -m pip install --upgrade pip
 cd image-generation
 pip install -r requirement.txt
 ```
+
+**4. Run WebApp** 
+```
+python App.py
+http://localhost:5000/
+```
+
