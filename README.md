@@ -71,12 +71,15 @@ git clone https://github.com/Antonii723/image-generator.git
 **2. Install the Python v3.11.2**
 
 **3. Install requirements** 
-```
-pip v24.0
-python.exe -m pip install --upgrade pip
 
+pip v24.0
+```
+python.exe -m pip install --upgrade pip
+```
+
+```
 cd image-generation
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
 
 **4. Run WebApp** 
