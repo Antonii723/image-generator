@@ -3,7 +3,7 @@ import time
 import psutil
 import json
 from flask import Flask, request, render_template, redirect, url_for
-from txt2img_model import create_pipeline, txt2img, PixArtAlphaTxt2img
+from txt2img_model import create_pipeline, txt2img, PixArtAlphaTxt2img, DiffusionTxt2img, StableDiffusionXLImg2Img
 from flask_socketio import SocketIO, emit
 
 
@@ -17,10 +17,12 @@ model_list = [
     "CompVis/stable-diffusion-v1-4",
     "prompthero/openjourney",
     "PixArt-alpha/PixArt-XL-2-1024-MS",
+    "stabilityai/stable-diffusion-xl-base-1.0",
+    "stabilityai/stable-diffusion-xl-refiner-1.0",
     "nota-ai/bk-sdm-small",
     "hakurei/waifu-diffusion",
     "stabilityai/stable-diffusion-2-1",
-    "dreamlike-art/dreamlike-photoreal-2.0",    
+    "dreamlike-art/dreamlike-photoreal-2.0",
 ]
 
 @app.route("/", methods=["GET"])
@@ -46,13 +48,20 @@ def handle_start_txt2img(data):
 
     start_time = time.time()
     before_resources = get_system_resources()
+
+    image = None
+
     if model == "PixArt-alpha/PixArt-XL-2-1024-MS":
         image = PixArtAlphaTxt2img(prompt)
-        image.save(IMAGE_PATH)
+    elif model == "stabilityai/stable-diffusion-xl-base-1.0":
+        image = DiffusionTxt2img(prompt)
+    elif model == "stabilityai/stable-diffusion-xl-refiner-1.0":
+        image = StableDiffusionXLImg2Img(prompt)
     else:
         pipeline = create_pipeline(model)
-        image = txt2img(prompt, pipeline)    
-        image.save(IMAGE_PATH)
+        image = txt2img(prompt, pipeline)
+
+    image.save(IMAGE_PATH)
 
     end_time = time.time()
     after_resources = get_system_resources()

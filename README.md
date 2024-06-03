@@ -10,11 +10,17 @@ This system should let users pick one or more models, enter text prompts, and ge
 
 **2. Integrate at least five different open-source image generation models:** 
 
-* Stable Diffusion (SD)
-* DeepFloyd IF
-* DreamShaper
-* OpenJourney
-* PixArt-Alpha
+- [x] Stable Diffusion (SD)
+- [ ] DeepFloyd IF
+- [ ] DreamShaper
+- [x] OpenJourney
+- [x] PixArt-Alpha
+
+> [!NOTE]
+> Additional models
+
++ stabilityai/stable-diffusion-xl-base-1.0
++ stabilityai/stable-diffusion-xl-refiner-1.0
 
 **3. Make sure the system can handle multiple prompts and generate outputs efficiently.** 
 
@@ -83,4 +89,3 @@ It can be downloaded at https://aka.ms/vs/16/release/vc_redist.x64.exe)
 Please run this app on your web browser.
 http://localhost:5000/
 ```
-
