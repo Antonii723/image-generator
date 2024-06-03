@@ -61,7 +61,7 @@ def DiffusionTxt2img(prompt):
     base = DiffusionPipeline.from_pretrained(
         "stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16, variant="fp16", use_safetensors=True
     )
-    base.to("cuda")
+    base.to("cpu")
     refiner = DiffusionPipeline.from_pretrained(
         "stabilityai/stable-diffusion-xl-refiner-1.0",
         text_encoder_2=base.text_encoder_2,
@@ -70,7 +70,7 @@ def DiffusionTxt2img(prompt):
         use_safetensors=True,
         variant="fp16",
     )
-    refiner.to("cuda")
+    refiner.to("cpu")
         
     image = base(
         prompt=prompt,
@@ -90,5 +90,5 @@ def StableDiffusionXLImg2Img(prompt):
     pipe = StableDiffusionXLImg2ImgPipeline.from_pretrained(
         "stabilityai/stable-diffusion-xl-refiner-1.0", torch_dtype=torch.float16, variant="fp16", use_safetensors=True
     )
-    pipe = pipe.to("cuda")
+    pipe = pipe.to("cpu")
     return pipe(prompt).images[0]
